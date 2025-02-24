@@ -1,27 +1,27 @@
 <template>
-  <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
-    <div>
-      <div style="font-size: 30vh">
-        404
-      </div>
-
-      <div class="text-h2" style="opacity:.4">
-        Oops. Nothing here...
-      </div>
-
-      <q-btn
-        class="q-mt-xl"
-        color="white"
-        text-color="blue"
-        unelevated
-        to="/"
-        label="Go Home"
-        no-caps
-      />
+  <q-page padding class="flex flex-center">
+    <div class="text-center">
+      <h1>Error 404</h1>
+      <p>La página que buscas no se encontró.</p>
+      <q-btn label="Volver al inicio" @click="goHome" color="primary" />
     </div>
-  </div>
+  </q-page>
 </template>
 
-<script setup>
-//
+<script>
+export default {
+  name: 'ErrorNotFund',
+  methods: {
+    goHome() {
+      this.$router.push('/');
+    }
+  }
+}
 </script>
+
+<style scoped>
+h1 {
+  font-size: 3em;
+  margin-bottom: 0.5em;
+}
+</style>

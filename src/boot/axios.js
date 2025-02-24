@@ -1,24 +1,37 @@
 import { defineBoot } from '#q-app/wrappers'
 import axios from 'axios'
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
+const api = axios.create({ baseURL: 'http://localhost:5183/api' })
+
+// Interceptor de solicitudes (request)
+api.interceptors.request.use(
+  (config) => {
+    // Puedes modificar la configuración, por ejemplo, agregar un token de autenticación
+    // config.headers.Authorization = `Bearer ${token}`
+    console.log('Request intercepted:', config)
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  },
+)
+
+// Interceptor de respuestas (response)
+api.interceptors.response.use(
+  (response) => {
+    console.log('Response intercepted:', response)
+    return response
+  },
+  (error) => {
+    // Manejar errores globalmente
+    // Por ejemplo, si error.response.status === 401, redirigir al login.
+    return Promise.reject(error)
+  },
+)
 
 export default defineBoot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
-
   app.config.globalProperties.$axios = axios
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
-
   app.config.globalProperties.$api = api
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
 })
 
 export { api }
