@@ -1,8 +1,9 @@
 <script setup>
-import { ref, getCurrentInstance } from 'vue'
+import { ref } from 'vue'
 import {
   useQuasar
 } from 'quasar'
+import loginService from 'src/services/auth/login.js'
 
 import { useRouter } from 'vue-router'
 
@@ -12,7 +13,7 @@ const router = useRouter();
 const username = ref('')
 const password = ref('')
 
-const { proxy } = getCurrentInstance()
+// const { proxy } = getCurrentInstance()
 
 async function login() {
   try {
@@ -20,9 +21,7 @@ async function login() {
       username: username.value,
       password: password.value
     }
-    const response = await proxy.$api.post("Auth/login", payload, {
-      headers: { 'Content-Type': 'application/json' }
-    })
+    const response = await loginService.login(payload)
     console.log('Datos recibidos:', response.data)
     router.push('/products')
   } catch (error) {

@@ -3,12 +3,16 @@
     <!-- HEADER -->
     <q-header elevated>
       <q-toolbar>
-        <q-btn flat dense round icon="menu" @click="toggleLeftDrawer" />
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+
         <q-toolbar-title>
-          Layout Base
+          Prueba CRUD
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
+
+
+
 
     <!-- PAGE CONTAINER -->
     <q-page-container>
