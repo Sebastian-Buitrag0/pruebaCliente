@@ -1,6 +1,6 @@
 <template>
   <q-dialog v-model="showDialog" @hide="onDialogHide">
-    <q-card class="form-modal" style="min-width: 350px; max-width: 80vw;">
+    <q-card class="form-modal" style="min-width: 350px; max-width: 80vw">
       <q-card-section class="row items-center">
         <div class="text-h6">{{ title }}</div>
         <q-space />
@@ -16,14 +16,44 @@
 
           <!-- Campos dinámicos basados en la configuración -->
           <div v-for="field in fields" :key="field.name" class="q-mb-md">
-            <q-input v-if="field.type === 'text' || field.type === 'email' || field.type === 'number'"
-              v-model="formData[field.name]" :label="field.label" :type="field.type" :rules="field.rules" filled dense
-              :hint="field.hint" />
+            <q-input
+              v-if="
+                field.type === 'text' ||
+                field.type === 'email' ||
+                field.type === 'number' ||
+                field.type === 'textarea'
+              "
+              v-model="formData[field.name]"
+              :label="field.label"
+              :type="field.type === 'textarea' ? 'text' : field.type"
+              :rules="field.rules"
+              filled
+              dense
+              :hint="field.hint"
+              :autogrow="field.type === 'textarea'"
+            />
 
-            <q-select v-else-if="field.type === 'select'" v-model="formData[field.name]" :options="field.options"
-              :label="field.label" :rules="field.rules" filled dense :hint="field.hint" />
+            <q-select
+              v-else-if="field.type === 'select'"
+              v-model="formData[field.name]"
+              :options="field.options"
+              :label="field.label"
+              :rules="field.rules"
+              filled
+              dense
+              :hint="field.hint"
+              emit-value
+              map-options
+              option-value="value"
+              option-label="label"
+              behavior="menu"
+            />
 
-            <q-toggle v-else-if="field.type === 'toggle'" v-model="formData[field.name]" :label="field.label" />
+            <q-toggle
+              v-else-if="field.type === 'toggle'"
+              v-model="formData[field.name]"
+              :label="field.label"
+            />
           </div>
 
           <!-- Slot adicional al final del formulario -->
@@ -49,25 +79,25 @@ export default {
   props: {
     modelValue: {
       type: Boolean,
-      default: false
+      default: false,
     },
     title: {
       type: String,
-      default: 'Formulario'
+      default: 'Formulario',
     },
     initialData: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     fields: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   data() {
     return {
-      formData: { ...this.initialData },
-      showDialog: this.modelValue
+      formData: {},
+      showDialog: this.modelValue,
     }
   },
   watch: {
@@ -78,20 +108,24 @@ export default {
       this.$emit('update:modelValue', val)
       if (val) {
         // Reset form data cuando se abre el modal
-        this.formData = { ...this.initialData }
+        this.resetFormData()
       }
     },
     initialData: {
-      handler(newVal) {
-        this.formData = { ...newVal }
+      handler() {
+        this.resetFormData()
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
+    resetFormData() {
+      // Crear una copia profunda de los datos iniciales
+      this.formData = JSON.parse(JSON.stringify(this.initialData))
+    },
     onSubmit() {
       // Validar formulario
-      this.$refs.formRef?.validate().then(success => {
+      this.$refs.formRef?.validate().then((success) => {
         if (success) {
           this.$emit('submit', { ...this.formData })
           this.showDialog = false
@@ -105,7 +139,10 @@ export default {
     onDialogHide() {
       // Resetear datos al cerrar
       this.$emit('hide')
-    }
-  }
+    },
+  },
+  created() {
+    this.resetFormData()
+  },
 }
 </script>

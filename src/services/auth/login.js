@@ -3,7 +3,10 @@ import { api } from 'src/boot/axios'
 export const loginService = {
   async login(credentials) {
     try {
-      const response = await api.post('Auth/login', credentials)
+      const response = await api.post('Auth/login', {
+        username: credentials.username,
+        password: credentials.password,
+      })
       if (response.data.token) {
         localStorage.setItem('user', JSON.stringify(response.data))
       }
