@@ -1,17 +1,37 @@
+import { authMiddleware } from './middleware/auth'
+
 const routes = [
   {
     path: '/',
     component: () => import('layouts/LayoutBase.vue'),
-    children: [{ path: '', component: () => import('src/pages/auth/LoginPage.vue') }],
+    children: [
+      {
+        path: '',
+        component: () => import('pages/IndexPage.vue'),
+        beforeEnter: authMiddleware,
+      },
+      {
+        path: 'products',
+        component: () => import('pages/products/ProductsPage.vue'),
+        beforeEnter: authMiddleware,
+      },
+      {
+        path: 'other',
+        component: () => import('pages/OtherPage.vue'),
+        beforeEnter: authMiddleware,
+      },
+    ],
   },
   {
-    path: '/products',
-    component: () => import('layouts/LayoutOpc.vue'),
-    children: [{ path: '', component: () => import('pages/products/ProductsPage.vue') }],
+    path: '/login',
+    component: () => import('layouts/LayoutBase.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/LoginPage.vue'),
+      },
+    ],
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
