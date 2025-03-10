@@ -57,12 +57,11 @@ const showCategoryModal = ref(false)
 const editMode = ref(false)
 
 // Datos de formularios
-const productData = reactive<ProductRequest & { id?: string }>({
+const productData = reactive<ProductRequest>({
   categoryId: '',
   name: '',
   description: '',
   price: 0,
-  id: '',
 })
 
 const categoryData = reactive<CategoryRequest>({
@@ -208,7 +207,6 @@ function editRow(row: ProductResponse) {
 
   // Asignar valores al formulario usando la estructura del backend
   Object.assign(productData, {
-    id: row.id || '',
     categoryId: row.categoryId || '',
     name: row.name || '',
     description: row.description || '',
@@ -221,39 +219,25 @@ function editRow(row: ProductResponse) {
 async function saveProduct(formData: ProductRequest) {
   try {
     loading.value = true
-    console.log('Guardando producto:', { formData, editMode: editMode.value, id: productData.id })
 
-    if (editMode.value && productData.id) {
-      const success = await ProductService.updateProduct(productData.id, {
-        name: formData.name,
-        description: formData.description,
-        price: formData.price,
-        categoryId: formData.categoryId,
-      })
-
-      if (success) {
-        await loadData()
-        showProductModal.value = false
-
-        $q.notify({
-          color: 'positive',
-          message: 'Producto actualizado correctamente',
-          icon: 'check',
-        })
+    if (editMode.value) {
+      const id = rows.value.find((p) => p.name === formData.name)?.id
+      if (id) {
+        await ProductService.updateProduct(id, formData)
       }
     } else {
       await ProductService.createProduct(formData)
-      await loadData()
-      showProductModal.value = false
-
-      $q.notify({
-        color: 'positive',
-        message: 'Producto creado correctamente',
-        icon: 'check',
-      })
     }
+
+    await loadData()
+    showProductModal.value = false
+
+    $q.notify({
+      color: 'positive',
+      message: `Producto ${editMode.value ? 'actualizado' : 'creado'} correctamente`,
+      icon: 'check',
+    })
   } catch (error) {
-    console.error('Error en saveProduct:', error)
     handleError(error, `Error al ${editMode.value ? 'actualizar' : 'crear'} producto`)
   } finally {
     loading.value = false

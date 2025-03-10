@@ -44,8 +44,6 @@
               :hint="field.hint"
               emit-value
               map-options
-              option-value="value"
-              option-label="label"
               behavior="menu"
             />
 
@@ -103,17 +101,18 @@ export default {
   watch: {
     modelValue(val) {
       this.showDialog = val
-    },
-    showDialog(val) {
-      this.$emit('update:modelValue', val)
       if (val) {
-        // Reset form data cuando se abre el modal
         this.resetFormData()
       }
     },
+    showDialog(val) {
+      this.$emit('update:modelValue', val)
+    },
     initialData: {
-      handler() {
-        this.resetFormData()
+      handler(newVal) {
+        if (this.showDialog && newVal) {
+          this.formData = JSON.parse(JSON.stringify(newVal))
+        }
       },
       deep: true,
     },

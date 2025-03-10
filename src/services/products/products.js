@@ -34,12 +34,13 @@ export const ProductService = {
         'Content-Type': 'application/json',
       },
     })
-    if (response.status === 200) {
-      return response.data
+    if (response.status === 200 || response.status === 204) {
+      return true
     } else {
       throw new Error('Failed to update product')
     }
   },
+
   async deleteProduct(id) {
     const response = await api.delete(`/Product/${id}`)
     if (response.status === 204) {
