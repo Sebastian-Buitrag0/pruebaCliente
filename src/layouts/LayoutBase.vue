@@ -33,7 +33,7 @@
           <q-item-section avatar>
             <q-icon name="web" />
           </q-item-section>
-          <q-item-section>Otra Página</q-item-section>
+          <q-item-section>Caja</q-item-section>
         </q-item>
       </q-list>
     </q-drawer>

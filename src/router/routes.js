@@ -17,7 +17,7 @@ const routes = [
       },
       {
         path: 'other',
-        component: () => import('pages/OtherPage.vue'),
+        component: () => import('pages/CashBox.vue'),
         beforeEnter: authMiddleware,
       },
     ],
