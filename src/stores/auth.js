@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 import { loginService } from 'src/services/auth/login'
+// import { router } from 'src/router'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
+    username: null,
     token: null,
     loading: false,
     error: null,
@@ -20,13 +22,22 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await loginService.login(credentials)
-        this.user = response.user
-        this.token = response.token
-        return true
+        const userSession = await loginService.login(credentials)
+
+        if (userSession && userSession.token) {
+          this.user = { username: userSession.username }
+          this.token = userSession.token
+          console.log('Store updated after login:', { user: this.user, token: this.token })
+          return true // Éxito
+        } else {
+          throw new Error('loginService no devolvió una sesión válida.')
+        }
       } catch (error) {
-        this.error = error.message || 'Error durante el inicio de sesión'
-        return false
+        console.error('Error en authStore.login:', error)
+        this.error = error.message || 'Error durante el inicio de sesión en el store'
+        this.user = null
+        this.token = null
+        return false // Fallo
       } finally {
         this.loading = false
       }
@@ -37,13 +48,18 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.token = null
       this.error = null
+      // router.push('/login')
     },
 
     initializeFromStorage() {
-      const user = loginService.getCurrentUser()
-      if (user) {
-        this.user = user
-        this.token = user.token
+      const userSession = loginService.getCurrentUser()
+      if (userSession && userSession.token) {
+        this.user = { username: userSession.username }
+        this.token = userSession.token
+        // this.refreshToken = userSession.refreshToken;
+      } else {
+        this.user = null
+        this.token = null
       }
     },
   },

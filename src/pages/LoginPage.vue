@@ -68,8 +68,9 @@ export default {
     const onSubmit = async () => {
       loading.value = true
       error.value = ''
-
       try {
+        console.log('Form data:', form.value)
+
         const success = await authStore.login(form.value)
         if (success) {
           const redirectPath = route.query.redirect || '/'
