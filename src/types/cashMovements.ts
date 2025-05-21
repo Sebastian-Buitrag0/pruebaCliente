@@ -1,16 +1,16 @@
 import type { Product } from './product'
 
 // Representa un ítem seleccionado en la caja
-export interface CashBoxItem {
+export interface CashMovementsItem {
   product: Product
   quantity: number
   total: number // price * quantity
 }
 
 // Representa la caja con su lista de productos seleccionados
-export interface CashBox {
+export interface CashMovements {
   id: string
-  items: CashBoxItem[]
+  items: CashMovementsItem[]
   subtotal: number
   tax: number
   total: number
@@ -19,7 +19,7 @@ export interface CashBox {
 }
 
 // DTO para enviar al backend (ajustarlo según API)
-export interface CashBoxDTO {
+export interface CashMovementsDTO {
   id: string
   items: {
     productId: string
@@ -28,7 +28,7 @@ export interface CashBoxDTO {
 }
 
 // Función auxiliar para crear un CashBox vacío
-export function createEmptyCashBox(): CashBox {
+export function createEmptyCashMovements(): CashMovements {
   return {
     id: '',
     items: [],

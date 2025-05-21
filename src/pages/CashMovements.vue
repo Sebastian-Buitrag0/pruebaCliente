@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { type Product, createEmptyProduct } from '../types/product';
-import { type CashBox, createEmptyCashBox } from 'src/types/cashBox';
+import { ref, onMounted } from 'vue'
+import { type Product, createEmptyProduct } from '../types/product'
+import { type CashMovements, createEmptyCashMovements } from 'src/types/cashMovements'
 
 // Estado reactivo para la caja
-const cashBox = ref<CashBox>(createEmptyCashBox());
-const selectedProduct = ref<Product>(createEmptyProduct());
-const quantity = ref<number>(1);
-const searchQuery = ref<string>('');
-const productsList = ref<Product[]>([]);
-const filteredProducts = ref<Product[]>([]);
+const cashMovements = ref<CashMovements>(createEmptyCashMovements())
+const selectedProduct = ref<Product>(createEmptyProduct())
+const quantity = ref<number>(1)
+const searchQuery = ref<string>('')
+const productsList = ref<Product[]>([])
+const filteredProducts = ref<Product[]>([])
 
 // Simular la carga de productos (reemplazar con llamada API real)
 onMounted(async () => {
@@ -21,135 +21,139 @@ onMounted(async () => {
       description: 'Descripción del producto 1',
       price: 10.99,
       categoryId: '1',
-      category: { id: '1', name: 'Categoría 1', description: 'Descripción categoría 1' }
+      category: { id: '1', name: 'Categoría 1', description: 'Descripción categoría 1' },
     },
     {
       id: '2',
       name: 'Producto 2',
       description: 'Descripción del producto 2',
-      price: 24.50,
+      price: 24.5,
       categoryId: '2',
-      category: { id: '2', name: 'Categoría 2', description: 'Descripción categoría 2' }
-    }
-  ];
-  
-  filteredProducts.value = [...productsList.value];
-});
+      category: { id: '2', name: 'Categoría 2', description: 'Descripción categoría 2' },
+    },
+  ]
+
+  filteredProducts.value = [...productsList.value]
+})
 
 // Calcular totales
 const calculateTotals = () => {
-  cashBox.value.subtotal = cashBox.value.items.reduce((sum: any, item: { total: any; }) => sum + item.total, 0);
-  cashBox.value.tax = cashBox.value.subtotal * 0.0; // Ajustar según la lógica fiscal necesaria
-  cashBox.value.total = cashBox.value.subtotal + cashBox.value.tax;
-};
+  cashMovements.value.subtotal = cashMovements.value.items.reduce(
+    (sum: any, item: { total: any }) => sum + item.total,
+    0,
+  )
+  cashMovements.value.tax = cashMovements.value.subtotal * 0.0 // Ajustar según la lógica fiscal necesaria
+  cashMovements.value.total = cashMovements.value.subtotal + cashMovements.value.tax
+}
 
 // Búsqueda de productos
 const searchProducts = () => {
   if (!searchQuery.value.trim()) {
-    filteredProducts.value = [...productsList.value];
-    return;
+    filteredProducts.value = [...productsList.value]
+    return
   }
-  
-  const query = searchQuery.value.toLowerCase();
+
+  const query = searchQuery.value.toLowerCase()
   filteredProducts.value = productsList.value.filter(
-      (    product: { name: string; description: string; id: string; }) => 
-      product.name.toLowerCase().includes(query) || 
+    (product: { name: string; description: string; id: string }) =>
+      product.name.toLowerCase().includes(query) ||
       product.description.toLowerCase().includes(query) ||
-      product.id.toLowerCase().includes(query)
-  );
-};
+      product.id.toLowerCase().includes(query),
+  )
+}
 
 // Actualizar cantidad del producto seleccionado
 const updateQuantity = (value: number) => {
-  quantity.value = Math.max(1, quantity.value + value);
-};
+  quantity.value = Math.max(1, quantity.value + value)
+}
 
 // Seleccionar un producto
 const selectProduct = (product: Product) => {
-  selectedProduct.value = product;
-};
+  selectedProduct.value = product
+}
 
 // Agregar producto a la caja
 const addToCart = () => {
-  if (!selectedProduct.value.id) return;
-  
-  const existingItemIndex = cashBox.value.items.findIndex(
-      (    item: { product: { id: any; }; }) => item.product.id === selectedProduct.value.id
-  );
-  
+  if (!selectedProduct.value.id) return
+
+  const existingItemIndex = cashMovements.value.items.findIndex(
+    (item: { product: { id: any } }) => item.product.id === selectedProduct.value.id,
+  )
+
   if (existingItemIndex >= 0) {
     // Actualizar item existente
-    cashBox.value.items[existingItemIndex].quantity += quantity.value;
-    cashBox.value.items[existingItemIndex].total = 
-      cashBox.value.items[existingItemIndex].quantity * cashBox.value.items[existingItemIndex].product.price;
+    cashMovements.value.items[existingItemIndex].quantity += quantity.value
+    cashMovements.value.items[existingItemIndex].total =
+      cashMovements.value.items[existingItemIndex].quantity *
+      cashMovements.value.items[existingItemIndex].product.price
   } else {
     // Agregar nuevo item
-    cashBox.value.items.push({
-      product: {...selectedProduct.value},
+    cashMovements.value.items.push({
+      product: { ...selectedProduct.value },
       quantity: quantity.value,
-      total: selectedProduct.value.price * quantity.value
-    });
+      total: selectedProduct.value.price * quantity.value,
+    })
   }
-  
+
   // Resetear selección
-  selectedProduct.value = createEmptyProduct();
-  quantity.value = 1;
-  
+  selectedProduct.value = createEmptyProduct()
+  quantity.value = 1
+
   // Recalcular totales
-  calculateTotals();
-};
+  calculateTotals()
+}
 
 // Eliminar un item de la caja
 const removeItem = (index: number) => {
-  cashBox.value.items.splice(index, 1);
-  calculateTotals();
-};
+  cashMovements.value.items.splice(index, 1)
+  calculateTotals()
+}
 
 // Procesar el pago
 const processPayment = () => {
   // Aquí iría la lógica para enviar la transacción al backend
-  console.log('Procesando pago:', cashBox.value);
-  
+  console.log('Procesando pago:', cashMovements.value)
+
   // Crear DTO para enviar
-  const cashBoxDTO = {
-    id: cashBox.value.id,
-    items: cashBox.value.items.map((item: { product: { id: any; }; quantity: any; }) => ({
+  const cashMovementsDTO = {
+    id: cashMovements.value.id,
+    items: cashMovements.value.items.map((item: { product: { id: any }; quantity: any }) => ({
       productId: item.product.id,
-      quantity: item.quantity
-    }))
-  };
-  
-  console.log('DTO para enviar:', cashBoxDTO);
-  
+      quantity: item.quantity,
+    })),
+  }
+
+  console.log('DTO para enviar:', cashMovementsDTO)
+
   // Luego de procesar, resetear la caja
-  cashBox.value = createEmptyCashBox();
-};
+  cashMovements.value = createEmptyCashMovements()
+}
 
 // Agregar a la caja sin procesar aún
-const addToCashBox = () => {
+const addToCashMovements = () => {
   if (selectedProduct.value.id && quantity.value > 0) {
-    addToCart();
+    addToCart()
   }
-};
+}
 </script>
 
 <template>
-  <div class="cashbox-container">
+  <div class="cashMovements-container">
     <!-- Sección de búsqueda -->
     <div class="search-container">
-      <input 
-        type="text" 
-        v-model="searchQuery" 
-        @input="searchProducts" 
-        placeholder="Buscar producto..." 
+      <input
+        type="text"
+        v-model="searchQuery"
+        @input="searchProducts"
+        placeholder="Buscar producto..."
         class="search-input"
       />
       <button class="search-button">
         <i class="fa fa-search"></i>
       </button>
     </div>
-    
-    <div class="cashbox-content">
+
+    <div class="cashMovements-content">
       <!-- Panel izquierdo: selección de producto -->
       <div class="product-selection">
         <div class="product-details">
@@ -157,36 +161,36 @@ const addToCashBox = () => {
             <span class="label">ID</span>
             <span class="value">{{ selectedProduct.id || '-' }}</span>
           </div>
-          
+
           <div class="field">
             <span class="label">Name</span>
             <span class="value">{{ selectedProduct.name || '-' }}</span>
           </div>
-          
+
           <div class="field">
             <span class="label">Category</span>
             <span class="value">{{ selectedProduct.category?.name || '-' }}</span>
           </div>
-          
+
           <div class="field">
             <span class="label">Price</span>
             <span class="value">${{ selectedProduct.price.toFixed(2) || '-' }}</span>
           </div>
-          
+
           <div class="product-image">
             <!-- Aquí iría la imagen del producto si existe -->
           </div>
-          
+
           <div class="description-field">
             <div class="description-label">Descripción...</div>
             <div class="description-value">{{ selectedProduct.description }}</div>
           </div>
         </div>
-        
+
         <!-- Lista de productos filtrados -->
         <div class="products-list" v-if="filteredProducts.length > 0">
-          <div 
-            v-for="product in filteredProducts" 
+          <div
+            v-for="product in filteredProducts"
             :key="product.id"
             class="product-item"
             @click="selectProduct(product)"
@@ -195,13 +199,11 @@ const addToCashBox = () => {
             <div class="product-price">${{ product.price.toFixed(2) }}</div>
           </div>
         </div>
-        <div v-else class="no-products">
-          No se encontraron productos.
-        </div>
+        <div v-else class="no-products">No se encontraron productos.</div>
       </div>
-      
+
       <!-- Panel derecho: detalles de la caja -->
-      <div class="cashbox-details">
+      <div class="cashMovements-details">
         <div class="quantity-control">
           <span class="quantity-label">Quantity</span>
           <div class="quantity-buttons">
@@ -210,24 +212,24 @@ const addToCashBox = () => {
             <button @click="updateQuantity(1)" class="quantity-btn increase">+</button>
           </div>
         </div>
-        
+
         <div class="totals">
           <div class="total-line">
             <span>Subtotal:</span>
-            <span>${{ cashBox.subtotal.toFixed(2) }}</span>
+            <span>${{ cashMovements.subtotal.toFixed(2) }}</span>
           </div>
           <div class="total-line">
             <span>Tax:</span>
-            <span>${{ cashBox.tax.toFixed(2) }}</span>
+            <span>${{ cashMovements.tax.toFixed(2) }}</span>
           </div>
           <div class="total-line total">
             <span>Total:</span>
-            <span>${{ cashBox.total.toFixed(2) }}</span>
+            <span>${{ cashMovements.total.toFixed(2) }}</span>
           </div>
         </div>
-        
+
         <div class="action-buttons">
-          <button @click="addToCashBox" class="add-button">
+          <button @click="addToCashMovements" class="add-button">
             <i class="fa fa-cart-plus"></i> AGREGAR A CAJA
           </button>
           <button @click="processPayment" class="pay-button">
@@ -236,20 +238,24 @@ const addToCashBox = () => {
         </div>
       </div>
     </div>
-    
+
     <!-- Sección de productos en caja -->
     <div class="cart-container">
       <div class="cart-header">
         <h3>Productos en caja</h3>
-        <span class="cart-total">Precio Total: ${{ cashBox.total.toFixed(2) }}</span>
+        <span class="cart-total">Precio Total: ${{ cashMovements.total.toFixed(2) }}</span>
       </div>
-      
+
       <div class="cart-items">
-        <div v-if="cashBox.items.length === 0" class="empty-cart">
+        <div v-if="cashMovements.items.length === 0" class="empty-cart">
           No hay productos en la caja.
         </div>
         <div v-else class="cart-item-list">
-          <div v-for="(item, index) in cashBox.items" :key="`item-${index}`" class="cart-item">
+          <div
+            v-for="(item, index) in cashMovements.items"
+            :key="`item-${index}`"
+            class="cart-item"
+          >
             <div class="item-info">
               <div class="item-name">{{ item.product.name }}</div>
               <div class="item-quantity">x{{ item.quantity }}</div>
@@ -266,7 +272,7 @@ const addToCashBox = () => {
 </template>
 
 <style scoped>
-.cashbox-container {
+.cashMovements-container {
   display: flex;
   flex-direction: column;
   max-width: 1200px;
@@ -297,7 +303,7 @@ const addToCashBox = () => {
   cursor: pointer;
 }
 
-.cashbox-content {
+.cashMovements-content {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
@@ -360,7 +366,7 @@ const addToCashBox = () => {
   background-color: #f5f5f5;
 }
 
-.cashbox-details {
+.cashMovements-details {
   flex: 2;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
@@ -432,7 +438,8 @@ const addToCashBox = () => {
   gap: 0.5rem;
 }
 
-.add-button, .pay-button {
+.add-button,
+.pay-button {
   padding: 0.75rem;
   border: none;
   border-radius: 4px;
@@ -499,7 +506,7 @@ const addToCashBox = () => {
 
 /* Estilos responsivos */
 @media screen and (max-width: 768px) {
-  .cashbox-content {
+  .cashMovements-content {
     flex-direction: column;
   }
 }

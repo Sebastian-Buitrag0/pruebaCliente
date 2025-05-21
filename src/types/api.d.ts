@@ -33,7 +33,22 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "text/plain": components["schemas"]["LoginResponseDto"];
+                        "application/json": components["schemas"]["LoginResponseDto"];
+                        "text/json": components["schemas"]["LoginResponseDto"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": string;
+                        "application/json": string;
+                        "text/json": string;
+                    };
                 };
             };
         };
@@ -121,7 +136,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/CashBox": {
+    "/api/CashMovements": {
         parameters: {
             query?: never;
             header?: never;
@@ -143,9 +158,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CashBoxResponse"][];
-                        "application/json": components["schemas"]["CashBoxResponse"][];
-                        "text/json": components["schemas"]["CashBoxResponse"][];
+                        "text/plain": components["schemas"]["CashMovementsResponse"][];
+                        "application/json": components["schemas"]["CashMovementsResponse"][];
+                        "text/json": components["schemas"]["CashMovementsResponse"][];
                     };
                 };
             };
@@ -160,9 +175,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CashBoxRequest"];
-                    "text/json": components["schemas"]["CashBoxRequest"];
-                    "application/*+json": components["schemas"]["CashBoxRequest"];
+                    "application/json": components["schemas"]["CashMovementsRequest"];
+                    "text/json": components["schemas"]["CashMovementsRequest"];
+                    "application/*+json": components["schemas"]["CashMovementsRequest"];
                 };
             };
             responses: {
@@ -181,7 +196,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/CashBox/{id}": {
+    "/api/CashMovements/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -205,9 +220,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["CashBoxResponse"];
-                        "application/json": components["schemas"]["CashBoxResponse"];
-                        "text/json": components["schemas"]["CashBoxResponse"];
+                        "text/plain": components["schemas"]["CashMovementsResponse"];
+                        "application/json": components["schemas"]["CashMovementsResponse"];
+                        "text/json": components["schemas"]["CashMovementsResponse"];
                     };
                 };
             };
@@ -223,9 +238,9 @@ export interface paths {
             };
             requestBody?: {
                 content: {
-                    "application/json": components["schemas"]["CashBoxRequest"];
-                    "text/json": components["schemas"]["CashBoxRequest"];
-                    "application/*+json": components["schemas"]["CashBoxRequest"];
+                    "application/json": components["schemas"]["CashMovementsRequest"];
+                    "text/json": components["schemas"]["CashMovementsRequest"];
+                    "application/*+json": components["schemas"]["CashMovementsRequest"];
                 };
             };
             responses: {
@@ -1269,7 +1284,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        CashBoxRequest: {
+        CashMovementsRequest: {
             /** Format: date-time */
             date: string;
             /** Format: double */
@@ -1278,7 +1293,7 @@ export interface components {
             /** Format: uuid */
             saleId?: string | null;
         };
-        CashBoxResponse: {
+        CashMovementsResponse: {
             /** Format: uuid */
             id?: string;
             /** Format: date-time */
@@ -1302,6 +1317,10 @@ export interface components {
             id?: string;
             name?: string | null;
             description?: string | null;
+        };
+        LoginResponseDto: {
+            accessToken?: string | null;
+            refreshToken?: string | null;
         };
         Product: {
             /** Format: uuid */
@@ -1335,16 +1354,18 @@ export interface components {
         };
         ProductSale: {
             product?: components["schemas"]["Product"];
-            /** Format: double */
-            amount?: number;
             /** Format: int32 */
             quantity?: number;
+            /** Format: double */
+            priceAtSale?: number;
         };
         ProductSaleRequest: {
             /** Format: uuid */
             product: string;
             /** Format: int32 */
             quantity: number;
+            /** Format: double */
+            priceAtSale: number;
         };
         ProductSaleResponse: {
             /** Format: uuid */
@@ -1354,6 +1375,8 @@ export interface components {
             amount?: number;
             /** Format: int32 */
             quantity?: number;
+            /** Format: double */
+            priceAtSale?: number;
         };
         RefreshTokenRequest: {
             token: string;
