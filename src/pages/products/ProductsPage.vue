@@ -1,16 +1,15 @@
 <script lang="ts" setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { ProductService } from 'src/services/products/products.js'
-import { CategoryService } from 'src/services/categories.js'
+import { ProductService } from 'src/services/products/products'
+import { CategoryService } from 'src/services/categories/categories'
 import BaseFormModal from 'src/components/forms/BaseFormModal.vue'
 import type {
   ProductResponse,
   ProductRequest,
   CategoryResponse,
   CategoryRequest,
-} from 'src/services/api/data-contracts'
-
+} from 'src/services/generated-api/api'
 const $q = useQuasar()
 
 // Estado reactivo
@@ -224,7 +223,7 @@ async function saveProduct(formData: ProductRequest) {
     console.log('Guardando producto:', { formData, editMode: editMode.value, id: productData.id })
 
     if (editMode.value && productData.id) {
-      const success = await ProductService.updateProduct(productData.id, {
+      const success = await ProductService.updateProduct(Number(productData.id), {
         name: formData.name,
         description: formData.description,
         price: formData.price,
@@ -277,7 +276,7 @@ function deleteRow(row: ProductResponse) {
     try {
       loading.value = true
       if (row.id) {
-        await ProductService.deleteProduct(row.id)
+        await ProductService.deleteProduct(Number(row.id))
         await loadData()
 
         $q.notify({

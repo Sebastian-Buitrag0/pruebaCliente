@@ -33,22 +33,7 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content: {
-                        "text/plain": components["schemas"]["LoginResponseDto"];
-                        "application/json": components["schemas"]["LoginResponseDto"];
-                        "text/json": components["schemas"]["LoginResponseDto"];
-                    };
-                };
-                /** @description Unauthorized */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": string;
-                        "application/json": string;
-                        "text/json": string;
-                    };
+                    content?: never;
                 };
             };
         };
@@ -1317,10 +1302,6 @@ export interface components {
             id?: string;
             name?: string | null;
             description?: string | null;
-        };
-        LoginResponseDto: {
-            accessToken?: string | null;
-            refreshToken?: string | null;
         };
         Product: {
             /** Format: uuid */

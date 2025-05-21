@@ -22,11 +22,11 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const userSession = await loginService.login(credentials)
+        const session = await loginService.login(credentials) // Asegúrate de que 'await' esté aquí
 
-        if (userSession && userSession.token) {
-          this.user = { username: userSession.username }
-          this.token = userSession.token
+        if (session) {
+          this.user = session.username
+          this.token = session.accessToken
           console.log('Store updated after login:', { user: this.user, token: this.token })
           return true // Éxito
         } else {

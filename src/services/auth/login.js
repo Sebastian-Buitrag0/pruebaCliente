@@ -1,5 +1,4 @@
 import { api as axiosInstance } from 'src/boot/axios.js'
-// Asegúrate que la ruta a tu api.ts generado sea correcta
 import { AuthApi } from 'src/services/generated-api/api'
 
 export const loginService = {
@@ -12,22 +11,67 @@ export const loginService = {
     }
 
     try {
-      console.log('userLoginRequest:', userLoginRequest)
+      console.log('loginService: Intentando iniciar sesión con:', userLoginRequest)
       const response = await authApi.apiAuthLoginPost(userLoginRequest)
 
-      if (response.data && response.data.accessToken) {
-        const userSession = {
-          username: credentials.username, // O de response.data si la API lo incluyera
-          token: response.data.accessToken, // Usar accessToken
-          refreshToken: response.data.refreshToken,
+      console.log(
+        'loginService: Respuesta recibida de la API:',
+        JSON.stringify(response.data, null, 2),
+      )
+      if (
+        response.data &&
+        response.data.accessToken &&
+        response.data.refreshToken &&
+        response.data.refreshToken.token &&
+        response.data.refreshToken.user &&
+        response.data.refreshToken.user.userData &&
+        response.data.refreshToken.user.role &&
+        response.data.refreshToken.user.username
+      ) {
+        console.log('loginService: Todos los datos necesarios están presentes en la respuesta.')
+        const accessToken = response.data.accessToken
+        const refreshTokenString = response.data.refreshToken.token
+        const userData = response.data.refreshToken.user.userData
+        const userRole = response.data.refreshToken.user.role
+        const username = response.data.refreshToken.user.username
+
+        localStorage.setItem('accessToken', accessToken)
+        localStorage.setItem('refreshToken', refreshTokenString)
+        localStorage.setItem('userData', JSON.stringify(userData))
+        localStorage.setItem('userRole', JSON.stringify(userRole))
+        localStorage.setItem('username', username)
+
+        const sessionData = {
+          username,
+          accessToken,
+          refreshToken: refreshTokenString,
+          userData,
+          role: userRole,
         }
-        localStorage.setItem('user', JSON.stringify(userSession))
-        return userSession // <-- DEVUELVE LA SESIÓN DEL USUARIO
+        console.log('loginService: Devolviendo datos de sesión:', sessionData)
+        return sessionData
       } else {
-        throw new Error('Login exitoso pero no se recibió el token de acceso.')
+        console.error('loginService: Faltan datos esenciales en la respuesta de la API.') // Log para saber que entramos al else
+        let missingDataError = 'Login exitoso pero faltan datos esenciales en la respuesta: '
+        if (!response.data) missingDataError = 'response.data es nulo o indefinido. '
+        else {
+          if (!response.data.accessToken) missingDataError += 'accessToken, '
+          if (!response.data.refreshToken) missingDataError += 'refreshToken object, '
+          else if (!response.data.refreshToken.token)
+            missingDataError += 'refreshToken.token (string), '
+          if (!response.data.refreshToken || !response.data.refreshToken.user)
+            missingDataError += 'refreshToken.user object, '
+          else {
+            if (!response.data.refreshToken.user.userData) missingDataError += 'userData, '
+            if (!response.data.refreshToken.user.role) missingDataError += 'userRole, '
+            if (!response.data.refreshToken.user.username) missingDataError += 'username, '
+          }
+        }
+        throw new Error(missingDataError.slice(0, -2) + '.')
       }
     } catch (error) {
       let errorMessage = 'Error al iniciar sesión.'
+      console.error('Error DENTRO de loginService.login (bloque catch):', error)
       if (error.response) {
         errorMessage =
           error.response.data?.message ||
@@ -39,29 +83,50 @@ export const loginService = {
       } else {
         errorMessage = error.message || errorMessage
       }
-      console.error('Error en loginService.login:', error)
+      console.error('loginService: Lanzando error con mensaje:', errorMessage)
       throw new Error(errorMessage)
     }
   },
 
   logout() {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('userData')
+    localStorage.removeItem('userRole')
+    localStorage.removeItem('username')
     localStorage.removeItem('user')
   },
 
   getCurrentUser() {
-    const userStr = localStorage.getItem('user')
     try {
-      return userStr ? JSON.parse(userStr) : null
+      const accessToken = localStorage.getItem('accessToken')
+      const refreshToken = localStorage.getItem('refreshToken')
+      const userDataString = localStorage.getItem('userData')
+      const userRoleString = localStorage.getItem('userRole')
+      const username = localStorage.getItem('username')
+
+      if (accessToken && refreshToken && userDataString && userRoleString && username) {
+        const userData = JSON.parse(userDataString)
+        const role = JSON.parse(userRoleString)
+        return {
+          username,
+          accessToken,
+          refreshToken,
+          userData,
+          role,
+        }
+      }
+      return null
     } catch (e) {
-      console.error('Error al parsear el usuario desde localStorage', e)
-      localStorage.removeItem('user')
+      console.error('Error al parsear datos del usuario desde localStorage', e)
+      this.logout()
       return null
     }
   },
 
   isAuthenticated() {
-    const user = this.getCurrentUser()
-    return !!user && !!user.token // 'token' es como lo guardamos en userSession
+    const accessToken = localStorage.getItem('accessToken')
+    return !!accessToken
   },
 }
 
