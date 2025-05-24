@@ -2,7 +2,7 @@ import { api } from 'src/boot/axios.js'
 
 export const CategoryService = {
   async fetchCategories() {
-    const response = await api.get('/Category')
+    const response = await api.get('/api/Category')
     if (response.status === 200) {
       return response.data
     } else {
@@ -11,7 +11,7 @@ export const CategoryService = {
   },
 
   async fetchCategory(id) {
-    const response = await api.get(`/Category/${id}`)
+    const response = await api.get(`/api/Category/${id}`)
     if (response.status === 200) {
       return response.data
     } else {
@@ -20,7 +20,7 @@ export const CategoryService = {
   },
 
   async createCategory(category) {
-    const response = await api.post('/Category', category)
+    const response = await api.post('/api/Category', category)
     if (response.status === 201) {
       return response.data
     } else {
@@ -29,7 +29,7 @@ export const CategoryService = {
   },
 
   async updateCategory(category) {
-    const response = await api.put(`/Category/${category.id}`, category)
+    const response = await api.put(`/api/Category/${category.id}`, category)
     if (response.status === 200) {
       return response.data
     } else {
@@ -38,7 +38,7 @@ export const CategoryService = {
   },
 
   async deleteCategory(id) {
-    const response = await api.delete(`/Category/${id}`)
+    const response = await api.delete(`/api/Category/${id}`)
     if (response.status === 204) {
       return true
     } else {
