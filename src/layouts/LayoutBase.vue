@@ -35,6 +35,13 @@
           </q-item-section>
           <q-item-section>Caja</q-item-section>
         </q-item>
+
+        <q-item clickable v-ripple to="/cashmovements">
+          <q-item-section avatar>
+            <q-icon name="receipt_long" />
+          </q-item-section>
+          <q-item-section>Movimientos de Caja</q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 

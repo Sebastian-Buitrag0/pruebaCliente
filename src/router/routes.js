@@ -20,6 +20,11 @@ const routes = [
         component: () => import('pages/CashMovements.vue'),
         beforeEnter: authMiddleware,
       },
+      {
+        path: 'cashmovements',
+        component: () => import('pages/CashMovementsListPage.vue'),
+        beforeEnter: authMiddleware,
+      },
     ],
   },
   {

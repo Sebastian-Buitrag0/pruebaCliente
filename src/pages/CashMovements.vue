@@ -414,13 +414,6 @@ async function processPaymentAndSale() {
     isAuthenticated: authStore.isAuthenticated,
   })
 
-  if (false) {
-    $q.notify({
-      type: 'negative',
-      message: 'Usuario no autenticado o ID de usuario no disponible.',
-    })
-    return
-  }
   const userId = authStore.getCurrentUserId
 
   isProcessingPayment.value = true
@@ -471,7 +464,7 @@ async function processPaymentAndSale() {
     const cashMovementRequest = {
       // CashMovementsRequest
       date: new Date().toISOString(),
-      amount: saleResponse.amount, // El monto total de SaleResponse
+      amount: currentCart.value.total, // El monto total de SaleResponse
       type: 0, // Asumimos 0 para Ingreso/Venta según TransactionType (0 | 1)
       saleId: saleResponse.id, // El ID de la SaleResponse
     }

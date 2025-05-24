@@ -44,4 +44,28 @@ export const CashMovementService = {
       throw error
     }
   },
+
+  async getAllCashMovements() {
+    try {
+      const response = await cashMovementsApi.apiCashMovementsGet() // Assumes GET /api/CashMovements returns CashMovementsResponse[]
+      if (response && response.status === 200 && response.data) {
+        return response.data // CashMovementsResponse[]
+      } else {
+        throw new Error('Respuesta inesperada al obtener los movimientos de caja.')
+      }
+    } catch (error) {
+      console.error('Error al obtener CashMovements:', error)
+      let errorMessage = 'Error al obtener los movimientos de caja.'
+      if (error.response && error.response.data) {
+        errorMessage = error.response.data.title || error.response.data.message || errorMessage
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      Notify.create({
+        type: 'negative',
+        message: errorMessage,
+      })
+      throw error
+    }
+  },
 }
