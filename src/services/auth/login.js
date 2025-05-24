@@ -4,7 +4,6 @@ import { AuthApi, UserApi } from 'src/services/generated-api/api'
 export const loginService = {
   async login(credentials) {
     const authApi = new AuthApi(undefined, undefined, axiosInstance)
-    const userApi = new UserApi(undefined, undefined, axiosInstance) // Instanciar UserApi
 
     const userLoginRequest = {
       username: credentials.username,
