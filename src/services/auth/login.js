@@ -1,9 +1,10 @@
 import { api as axiosInstance } from 'src/boot/axios.js'
-import { AuthApi } from 'src/services/generated-api/api'
+import { AuthApi, UserApi } from 'src/services/generated-api/api'
 
 export const loginService = {
   async login(credentials) {
     const authApi = new AuthApi(undefined, undefined, axiosInstance)
+    const userApi = new UserApi(undefined, undefined, axiosInstance) // Instanciar UserApi
 
     const userLoginRequest = {
       username: credentials.username,
@@ -34,12 +35,47 @@ export const loginService = {
         const userData = response.data.refreshToken.user.userData
         const userRole = response.data.refreshToken.user.role
         const username = response.data.refreshToken.user.username
+        // Use the userId from the login response directly and consistently
+        const userIdFromLogin = response.data.refreshToken.userId
 
         localStorage.setItem('accessToken', accessToken)
         localStorage.setItem('refreshToken', refreshTokenString)
         localStorage.setItem('userData', JSON.stringify(userData))
         localStorage.setItem('userRole', JSON.stringify(userRole))
         localStorage.setItem('username', username)
+        // Store it as 'userId' for consistency with getCurrentUser and authStore
+        localStorage.setItem('userId', userIdFromLogin)
+
+        // Optional: The block fetching from /api/User can be kept if it's for additional details,
+        // but the primary userId for the session should be userIdFromLogin.
+        // For now, we'll ensure sessionData uses userIdFromLogin.
+        // If the /api/User call is purely to get the ID, it might be redundant if the login response is reliable.
+
+        // *** Nueva lógica para obtener el ID del usuario (Consider if still needed for ID) ***
+        // let fetchedUserDetails = null; // Example if you fetch more details
+        // try {
+        //   console.log('loginService: Buscando detalles adicionales del usuario...');
+        //   const usersResponse = await userApi.apiUserGet();
+        //   const users = usersResponse.data;
+        //   if (Array.isArray(users)) {
+        //     const loggedInUser = users.find((user) => user.username === username);
+        //     if (loggedInUser) {
+        //       fetchedUserDetails = loggedInUser;
+        //       // If this call provides a more definitive or complete ID, you might reconsider,
+        //       // but ensure it doesn't overwrite a valid userIdFromLogin with null.
+        //       // For instance, if userIdFromLogin is always present, prefer that.
+        //       // localStorage.setItem('userId', loggedInUser.id); // Potentially update if this is more accurate
+        //       console.log('loginService: Detalles adicionales del usuario encontrados:', fetchedUserDetails);
+        //     } else {
+        //       console.warn('loginService: Usuario logueado no encontrado en la lista de /api/User para detalles adicionales.');
+        //     }
+        //   } else {
+        //     console.warn('loginService: La respuesta de /api/User no es un array para detalles adicionales.');
+        //   }
+        // } catch (userError) {
+        //   console.error('loginService: Error al obtener detalles adicionales de /api/User', userError);
+        // }
+        // *** Fin de nueva lógica ***
 
         const sessionData = {
           username,
@@ -47,6 +83,7 @@ export const loginService = {
           refreshToken: refreshTokenString,
           userData,
           role: userRole,
+          userId: userIdFromLogin, // Use the reliable ID from the login response
         }
         console.log('loginService: Devolviendo datos de sesión:', sessionData)
         return sessionData
@@ -94,7 +131,7 @@ export const loginService = {
     localStorage.removeItem('userData')
     localStorage.removeItem('userRole')
     localStorage.removeItem('username')
-    localStorage.removeItem('user')
+    localStorage.removeItem('userId') // Eliminar el ID del usuario
   },
 
   getCurrentUser() {
@@ -104,19 +141,24 @@ export const loginService = {
       const userDataString = localStorage.getItem('userData')
       const userRoleString = localStorage.getItem('userRole')
       const username = localStorage.getItem('username')
+      const userId = localStorage.getItem('userId') // Correctly retrieves 'userId'
 
-      if (accessToken && refreshToken && userDataString && userRoleString && username) {
+      if (accessToken && refreshToken && userDataString && userRoleString && username && userId) {
         const userData = JSON.parse(userDataString)
         const role = JSON.parse(userRoleString)
         return {
           username,
           accessToken,
           refreshToken,
-          userData,
+          userData: {
+            ...userData,
+            id: userId,
+          },
           role,
+          userId, // This is from localStorage.getItem('userId')
         }
       }
-      return null
+      return null // Returns null if 'userId' from localStorage is missing
     } catch (e) {
       console.error('Error al parsear datos del usuario desde localStorage', e)
       this.logout()

@@ -2,7 +2,7 @@ import { api } from 'src/boot/axios.js'
 
 export const ProductService = {
   async fetchProducts() {
-    const response = await api.get('/Product')
+    const response = await api.get('/api/Product')
     if (response.status === 200) {
       return response.data
     } else {
@@ -11,7 +11,7 @@ export const ProductService = {
   },
 
   async fetchProduct(id) {
-    const response = await api.get(`/Product/${id}`)
+    const response = await api.get(`/api/Product/${id}`)
     if (response.status === 200) {
       return response.data
     } else {
@@ -20,7 +20,7 @@ export const ProductService = {
   },
 
   async createProduct(product) {
-    const response = await api.post('/Product', product)
+    const response = await api.post('/api/Product', product)
     if (response.status === 201) {
       return response.data
     } else {
@@ -29,7 +29,7 @@ export const ProductService = {
   },
 
   async updateProduct(id, product) {
-    const response = await api.put(`/Product/${id}`, product, {
+    const response = await api.put(`/api/Product/${id}`, product, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -42,7 +42,7 @@ export const ProductService = {
   },
 
   async deleteProduct(id) {
-    const response = await api.delete(`/Product/${id}`)
+    const response = await api.delete(`/api/Product/${id}`)
     if (response.status === 204) {
       return true
     } else {

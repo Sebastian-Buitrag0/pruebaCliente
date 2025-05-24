@@ -3,7 +3,7 @@ import axios from 'axios'
 // Asumo que podrías querer usar loginService para el logout, si es así, impórtalo.
 // import { loginService } from 'src/services/auth/login' // Descomenta si lo usas
 
-const api = axios.create({ baseURL: 'http://localhost:5183/api' })
+const api = axios.create({ baseURL: 'http://localhost:5183' })
 
 api.interceptors.request.use(
   (config) => {
@@ -31,9 +31,7 @@ api.interceptors.response.use(
         if (refreshTokenString) {
           // El payload para refrescar el token. Asegúrate que coincida con lo que espera tu backend.
           // Comúnmente es el token de refresco en sí.
-          const refreshPayload = { token: refreshTokenString }
-
-          // Usamos la instancia global de axios para la solicitud de refresh token
+          const refreshPayload = { token: refreshTokenString } // Usamos la instancia global de axios para la solicitud de refresh token
           // para evitar problemas con interceptores de la instancia 'api' si esta llamada también fallara.
           const refreshResponse = await axios.post(
             api.defaults.baseURL + '/Auth/refresh-token', // Usa la baseURL de la instancia 'api'
@@ -46,16 +44,17 @@ api.interceptors.response.use(
 
           // Opcional: Si tu API devuelve un nuevo token de refresco, actualízalo también
           if (refreshResponse.data.refreshToken && refreshResponse.data.refreshToken.token) {
-            localStorage.setItem('refreshToken', refreshResponse.data.refreshToken.token);
+            localStorage.setItem('refreshToken', refreshResponse.data.refreshToken.token)
           } else if (typeof refreshResponse.data.refreshToken === 'string') {
-             localStorage.setItem('refreshToken', refreshResponse.data.refreshToken);
+            localStorage.setItem('refreshToken', refreshResponse.data.refreshToken)
           }
-
 
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
           return api(originalRequest) // Reintentar la solicitud original con la instancia 'api'
         } else {
-          console.error('Token de refresco no encontrado en localStorage. El usuario necesita iniciar sesión de nuevo.');
+          console.error(
+            'Token de refresco no encontrado en localStorage. El usuario necesita iniciar sesión de nuevo.',
+          )
           // Aquí deberías manejar el logout, por ejemplo:
           // loginService.logout(); // Si importaste loginService
           // window.location.href = '/login'; // O redirigir manualmente
@@ -63,13 +62,14 @@ api.interceptors.response.use(
       } catch (refreshError) {
         console.error('Error durante el refresco del token:', refreshError)
         if (refreshError.response && refreshError.response.status === 401) {
-          console.error('El refresco del token falló con 401. Cerrando sesión del usuario.');
+          console.error('El refresco del token falló con 401. Cerrando sesión del usuario.')
           // Aquí es crucial manejar el logout completo
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('userData');
-          localStorage.removeItem('userRole');
-          localStorage.removeItem('username');
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('userData')
+          localStorage.removeItem('userRole')
+          localStorage.removeItem('username')
+          localStorage.removeItem('id')
           // loginService.logout(); // Si importaste loginService
           // window.location.href = '/login'; // O redirigir manualmente
         }

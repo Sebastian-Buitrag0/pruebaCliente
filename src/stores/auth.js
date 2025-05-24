@@ -6,6 +6,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     username: null,
+    userId: null,
     token: null,
     loading: false,
     error: null,
@@ -14,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.token,
     currentUser: (state) => state.user,
+    getCurrentUserId: (state) => state.userId,
     hasError: (state) => !!state.error,
   },
 
@@ -26,8 +28,13 @@ export const useAuthStore = defineStore('auth', {
 
         if (session) {
           this.user = session.username
+          this.userId = session.userId
           this.token = session.accessToken
-          console.log('Store updated after login:', { user: this.user, token: this.token })
+          console.log('Store updated after login:', {
+            user: this.user,
+            userId: this.userId,
+            token: this.token,
+          })
           return true // Éxito
         } else {
           throw new Error('loginService no devolvió una sesión válida.')
@@ -36,6 +43,7 @@ export const useAuthStore = defineStore('auth', {
         console.error('Error en authStore.login:', error)
         this.error = error.message || 'Error durante el inicio de sesión en el store'
         this.user = null
+        this.userId = null
         this.token = null
         return false // Fallo
       } finally {
@@ -46,6 +54,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       loginService.logout()
       this.user = null
+      this.userId = null
       this.token = null
       this.error = null
       // router.push('/login')
@@ -53,12 +62,18 @@ export const useAuthStore = defineStore('auth', {
 
     initializeFromStorage() {
       const userSession = loginService.getCurrentUser()
-      if (userSession && userSession.token) {
-        this.user = { username: userSession.username }
-        this.token = userSession.token
-        // this.refreshToken = userSession.refreshToken;
+      if (userSession && userSession.accessToken) {
+        this.user = userSession.username
+        this.userId = userSession.userId
+        this.token = userSession.accessToken
+        console.log('Store initialized from storage:', {
+          user: this.user,
+          userId: this.userId,
+          token: this.token,
+        })
       } else {
         this.user = null
+        this.userId = null
         this.token = null
       }
     },
