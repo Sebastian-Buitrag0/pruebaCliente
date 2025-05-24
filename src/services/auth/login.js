@@ -1,5 +1,5 @@
 import { api as axiosInstance } from 'src/boot/axios.js'
-import { AuthApi, UserApi } from 'src/services/generated-api/api'
+import { AuthApi } from 'src/services/generated-api/api'
 
 export const loginService = {
   async login(credentials) {
