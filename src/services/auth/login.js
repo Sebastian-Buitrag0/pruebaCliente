@@ -11,13 +11,10 @@ export const loginService = {
     }
 
     try {
-      console.log('loginService: Intentando iniciar sesión con:', userLoginRequest)
+      console.log('loginService: Intentando iniciar sesión con el usuario:', userLoginRequest.username)
       const response = await authApi.apiAuthLoginPost(userLoginRequest)
 
-      console.log(
-        'loginService: Respuesta recibida de la API:',
-        JSON.stringify(response.data, null, 2),
-      )
+      console.log('loginService: Respuesta recibida de la API.')
       if (
         response.data &&
         response.data.accessToken &&
@@ -84,7 +81,7 @@ export const loginService = {
           role: userRole,
           userId: userIdFromLogin, // Use the reliable ID from the login response
         }
-        console.log('loginService: Devolviendo datos de sesión:', sessionData)
+        console.log('loginService: Devolviendo datos de sesión.')
         return sessionData
       } else {
         console.error('loginService: Faltan datos esenciales en la respuesta de la API.') // Log para saber que entramos al else
